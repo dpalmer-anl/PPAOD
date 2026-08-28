@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ppaod"
+version = "0.1.0"
+description = "Parameterized pseudo-atomic orbital disentanglement"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "torch>=2.2",
+]
+authors = [
+    {name = "Daniel Palmer"},
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+ppaod = "ppaod.run_ppaod:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ppaod*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
