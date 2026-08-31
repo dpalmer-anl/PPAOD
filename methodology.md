@@ -134,17 +134,10 @@ where $b$ runs over the finite-difference neighbor shell of $k$ on the
 Monkhorst–Pack mesh and $w_b$ are the corresponding finite-difference
 weights and $P(k)=V(k)V(k)^\dagger$. $\Omega_I=0$ exactly when the subspace is perfectly aligned between $k$ and every neighbor $k+b$, and $\Omega_I>0$ otherwise. 
 
-A low $\Omega_I$ favors a smooth, localized real-space representation and
-avoids arbitrary $k$-point-by-$k$-point changes in the selected DFT states.
-
-PPAOD reports the spread per Wannier function in the combined objective,
-$\Omega_I/J$, so that this term remains comparable when the number of
-orbitals changes.
-
 ## Orbital-character term: $\Omega_D$
 
 The $\Omega_D$ term compares local/orbital-projected densities of states at
-each $k$-point. For DFT, the LPDOS for orbital $i$ is
+each $k$-point between the projected subspace and DFT. For DFT, the LPDOS for orbital $i$ is
 
 $$
  \rho^{\mathrm{DFT}}_{ik}(E)
