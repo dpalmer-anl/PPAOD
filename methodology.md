@@ -78,7 +78,7 @@ where the retained DFT eigenvalue matrix is
 
 $$
 E_{\mathrm{DFT}}(k) =
-\operatorname{diag}\left(
+\mathrm{diag}\left(
 \epsilon^{\mathrm{DFT}}_{1k},\dots,\epsilon^{\mathrm{DFT}}_{N(k)k}
 \right)
 \in \mathbb{R}^{N(k)\times N(k)}.
@@ -159,7 +159,7 @@ integrates to 1 over $E$.
 After diagonalizing the projected Hamiltonian,
 $$
  H_{\mathrm{sub}}(k) C(k)
- = C(k)\operatorname{diag}\left(
+ = C(k)\left(
  \epsilon^{\mathrm{sub}}_{1k},\dots,\epsilon^{\mathrm{sub}}_{Jk}
  \right),
  \qquad C(k)\in\mathbb C^{J\times J} \text{ unitary},
