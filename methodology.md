@@ -74,7 +74,16 @@ $$
  \qquad H_{\mathrm{sub}}(k)\in\mathbb C^{J\times J},
 $$
 
-where $E_{\mathrm{DFT}}(k) = \mathrm{diag}(\epsilon^{\mathrm{DFT}}_{1k},\dots,\epsilon^{\mathrm{DFT}}_{N(k)k})$ is the $N(k)\times N(k)$ diagonal matrix of retained DFT eigenvalues at $k$.
+where the retained DFT eigenvalue matrix is
+
+$$
+E_{\mathrm{DFT}}(k) =
+\operatorname{diag}\left(
+\epsilon^{\mathrm{DFT}}_{1k},\dots,\epsilon^{\mathrm{DFT}}_{N(k)k}
+\right)
+\in \mathbb{R}^{N(k)\times N(k)}.
+$$
+
 Because $V(k)^\dagger V(k)=I_J$, the columns of $V(k)$ define an orthonormal
 $J$-dimensional basis, so the resulting subspace is represented using
 exactly the requested $J$ orbitals, even when the outer DFT window (after
@@ -150,7 +159,9 @@ integrates to 1 over $E$.
 After diagonalizing the projected Hamiltonian,
 $$
  H_{\mathrm{sub}}(k) C(k)
- = (\epsilon^{\mathrm{sub}}_{nk}) C(k) ,
+ = C(k)\operatorname{diag}\left(
+ \epsilon^{\mathrm{sub}}_{1k},\dots,\epsilon^{\mathrm{sub}}_{Jk}
+ \right),
  \qquad C(k)\in\mathbb C^{J\times J} \text{ unitary},
 $$
 the subspace LPDOS is
@@ -167,8 +178,10 @@ automatically normalized to unit probability. The KL divergence is then used to 
 normalized LPDOS curves for orbital $i$ at kpoint $k$ is
 
 $$
- KL\\left(\rho^{\mathrm{sub}}_{ik}\,\middle\|\,\rho^{\mathrm{DFT}}_{ik}\right)
- = \int dE\ \rho^{\mathrm{sub}}_{ik}(E)\, \ln\\left[\frac{\rho^{\mathrm{sub}}_{ik}(E)}{\rho^{\mathrm{DFT}}_{ik}(E)}\right],
+   KL\left(\rho^{\mathrm{sub}}_{ik}\,\middle\|\,\rho^{\mathrm{DFT}}_{ik}\right)
+ = \int dE\ \rho^{\mathrm{sub}}_{ik}(E)\, \ln\left[
+ \frac{\rho^{\mathrm{sub}}_{ik}(E)}{\rho^{\mathrm{DFT}}_{ik}(E)}
+ \right],
 $$
 
 and PPAOD evaluates
