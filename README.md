@@ -53,6 +53,17 @@ cache. A compatible `projection_cache.pt` can be supplied with
 `--restart-file` to avoid rereading the wavefunctions. PPAOD does not bundle
 QE, Wannier90, or machine-specific wavefunction data.
 
+The orbital basis specified in the Wannier90 `.win` file is the basis used for
+PPAOD's initial projections. During PPAOD optimization, each orbital retains its specified angular momentum; only the
+radial part is parameterized and optimized. If the projections in `.win` are
+changed, rerun Wannier90 post-processing so that `.nnkp` reflects the change.
+
+## Units
+
+PPAOD uses eV for energies and Å (Angstroms) for real-space lengths. Reciprocal
+vectors used internally are in Å⁻¹. QE wavefunction files are converted from
+their native Bohr-based reciprocal coordinates when loaded.
+
 ## Quick start: serial
 
 Run on one CPU process:
@@ -79,7 +90,7 @@ Useful controls include:
 
 ```text
 --n-basis 10              Bessel functions per angular momentum channel
---r-c 5.0                 radial cutoff in Bohr
+--r-c 5.0                 radial cutoff in Angstroms
 --max-steps 150           Adam optimization steps
 --alpha 0.8               weight of ΩI/J versus ΩD
 --proj-threshold 0.01     minimum trial-orbital projectability

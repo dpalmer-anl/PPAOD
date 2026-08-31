@@ -7,13 +7,11 @@ from pathlib import Path
 import numpy as np
 from numpy.typing import NDArray
 from scipy.io import FortranFile
-
-# Bohr / Angstrom (CODATA-style; QE uses ~0.529177)
-ANG_TO_BOHR = 1.0 / 0.52917720859
+from ..units import BOHR_TO_ANGSTROM
 
 
-def read_alat_bohr(save_dir: Path | str) -> float:
-    """Parse ``alat`` (Bohr) from ``data-file-schema.xml`` in a QE ``.save`` directory."""
+def read_alat_angstrom(save_dir: Path | str) -> float:
+    """Parse QE ``alat`` and return it in Angstroms."""
     import re
 
     schema = Path(save_dir) / "data-file-schema.xml"
@@ -21,7 +19,7 @@ def read_alat_bohr(save_dir: Path | str) -> float:
     m = re.search(r'alat\s*=\s*"([^"]+)"', text)
     if m is None:
         raise ValueError(f"Could not find alat in {schema}")
-    return float(m.group(1))
+    return float(m.group(1)) * BOHR_TO_ANGSTROM
 
 
 def read_wfc_dat(
@@ -64,26 +62,28 @@ def read_wfc_dat(
     return ik, xk, mill, evc, b_matrix
 
 
-def miller_to_G_cart_au(
+def miller_to_G_cart(
     mill: NDArray[np.int32],
     b_matrix: NDArray[np.float64],
-    alat_bohr: float | None = None,
+    alat_angstrom: float | None = None,
 ) -> NDArray[np.float64]:
     """
-    Convert Miller indices to Cartesian G (Bohr⁻¹).
+    Convert Miller indices to Cartesian G (Angstrom⁻¹).
 
-    In QE ``wfc*.dat``, the reciprocal axes ``b1,b2,b3`` are written already
-    in Cartesian Bohr⁻¹ (consistent with ``2π/|a_i|``), *not* in units of
-    ``2π/alat`` that still need rescaling.
+    In QE ``wfc*.dat``, the reciprocal axes ``b1,b2,b3`` are written in units
+    of ``2π/alat``.  ``alat_angstrom`` supplies the scale needed to return
+    Cartesian Angstrom⁻¹.
     """
-    del alat_bohr  # kept for call-site compatibility
-    return mill.astype(np.float64) @ b_matrix
+    if alat_angstrom is None or alat_angstrom <= 0.0:
+        raise ValueError("alat_angstrom must be positive")
+    return (mill.astype(np.float64) @ b_matrix) * (2.0 * np.pi / alat_angstrom)
 
 
-def xk_to_k_cart_au(xk: NDArray[np.float64], alat_bohr: float | None = None) -> NDArray[np.float64]:
-    """``xk`` from ``wfc*.dat`` → Cartesian ``k`` in Bohr⁻¹ (same units as ``b_i``)."""
-    del alat_bohr
-    return np.asarray(xk, dtype=np.float64).copy()
+def xk_to_k_cart(xk: NDArray[np.float64], alat_angstrom: float | None = None) -> NDArray[np.float64]:
+    """Convert QE ``xk`` from ``2π/alat`` units to Cartesian Angstrom⁻¹."""
+    if alat_angstrom is None or alat_angstrom <= 0.0:
+        raise ValueError("alat_angstrom must be positive")
+    return np.asarray(xk, dtype=np.float64).copy() * (2.0 * np.pi / alat_angstrom)
 
 
 def load_all_wavefunctions(
@@ -110,7 +110,10 @@ def load_all_wavefunctions(
 
     Returns
     -------
-    c_list, Gvecs_list, k_cart_list, alat_bohr, b_matrix
+    c_list, Gvecs_list, k_cart_list, alat_angstrom, b_matrix
+
+    ``Gvecs_list`` and ``k_cart_list`` are in Angstrom⁻¹; ``alat_angstrom``
+    is in Angstroms.
     """
     save_dir = Path(save_dir)
     if k_indices is None:
@@ -120,7 +123,7 @@ def load_all_wavefunctions(
         else:
             k_indices = list(range(n_k))
 
-    alat = read_alat_bohr(save_dir)
+    alat = read_alat_angstrom(save_dir)
     c_list: list[NDArray[np.complex128]] = []
     G_list: list[NDArray[np.float64]] = []
     k_list: list[NDArray[np.float64]] = []
@@ -132,9 +135,9 @@ def load_all_wavefunctions(
             raise FileNotFoundError(path)
         _ik_file, xk, mill, evc, bmat = read_wfc_dat(path)
         if b_matrix is None:
-            b_matrix = bmat
-        G_cart = miller_to_G_cart_au(mill, bmat, alat)
-        k_cart = xk_to_k_cart_au(xk, alat)
+            b_matrix = bmat * (2.0 * np.pi / alat)
+        G_cart = miller_to_G_cart(mill, bmat, alat)
+        k_cart = xk_to_k_cart(xk, alat)
         c_list.append(evc)
         G_list.append(G_cart)
         k_list.append(k_cart)

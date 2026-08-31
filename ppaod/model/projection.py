@@ -29,7 +29,7 @@ class ProjectionCache:
     orbitals: list[TrialOrbital]
     # map orbital index → l
     orb_l: list[int]
-    omega: float  # cell volume Bohr^3
+    omega: float  # cell volume Angstrom^3
     J: int
     dtype: torch.dtype = torch.complex128
     # Global mesh indices for each local cache slot (None ⇒ identity 0..n-1)
@@ -47,9 +47,9 @@ class ProjectionCache:
         return int(self.global_k_indices[ik_local])
 
 
-def cell_volume_bohr(real_lattice_ang: NDArray[np.float64]) -> float:
-    A = real_lattice_ang / 0.52917720859
-    return float(np.abs(np.linalg.det(A)))
+def cell_volume_angstrom(real_lattice_ang: NDArray[np.float64]) -> float:
+    """Return the real-cell volume in Angstrom³."""
+    return float(np.abs(np.linalg.det(real_lattice_ang)))
 
 
 def build_projection_cache(
@@ -68,13 +68,14 @@ def build_projection_cache(
 ) -> ProjectionCache:
     """
     Precompute ``T_l[k]``, ``Y_lm``, and ``exp(-i q·τ)`` for k-points in
-    ``c_list``.
+    ``c_list``.  Real-space quantities and ``r_c`` are in Angstroms;
+    reciprocal-space quantities are in Angstrom⁻¹.
 
     For distributed runs, pass only local-k WFCs and set ``global_k_indices``
     (and full-mesh ``band_idx_global`` for MMN indexing).
     """
     device = device or torch.device("cpu")
-    omega = cell_volume_bohr(real_lattice_ang)
+    omega = cell_volume_angstrom(real_lattice_ang)
     pref0 = 4.0 * np.pi / np.sqrt(omega)
     l_values = [orb.l for orb in orbitals]
     bases = make_bases(l_values, r_c=r_c, n_basis=n_basis)
@@ -108,7 +109,7 @@ def build_projection_cache(
         ang_k: list[torch.Tensor] = []
         for orb in orbitals:
             Y = real_spherical_harmonic(orb.l, orb.mr, q_hat)
-            phase = np.exp(-1j * (q @ orb.tau_cart_bohr))
+            phase = np.exp(-1j * (q @ orb.tau_cart_ang))
             il = ((-1j) ** orb.l)  # QE/Wannier90 plane-wave convention
             fac = pref0 * il * Y * phase
             ang_k.append(torch.as_tensor(fac, dtype=torch.complex128, device=device))

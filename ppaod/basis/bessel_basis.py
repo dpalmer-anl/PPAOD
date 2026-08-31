@@ -25,6 +25,7 @@ def spherical_bessel_roots(l: int, n_basis: int, r_c: float) -> NDArray[np.float
     """
     First ``n_basis`` positive roots ``k_i`` of ``j_l(k r_c) = 0``.
 
+    ``r_c`` is in Angstroms and the returned ``k_i`` are in Angstrom⁻¹.
     Uses bracketed Brent search on successive lobes of ``j_l``.
     """
     if r_c <= 0:
@@ -72,7 +73,9 @@ def bessel_integral_closed(
     equal_tol: float = 1e-8,
 ) -> float:
     """
-    Closed-form ``∫_0^{r_c} j_l(k_i r) j_l(q r) r^2 dr`` with ``j_l(k_i r_c)=0``.
+    Closed-form ``∫_0^{r_c} j_l(k_i r) j_l(q r) r^2 dr`` with
+    ``r_c`` in Angstroms and ``k_i, q`` in Angstrom⁻¹.
+    ``j_l(k_i r_c)=0``.
 
     Lommel integral; equal-argument limit when ``|k_i - q|`` is tiny.
     """
@@ -113,8 +116,8 @@ class BesselBasis:
     """Per-``l`` radial Bessel basis."""
 
     l: int
-    r_c: float
-    k_nodes: NDArray[np.float64]  # (n_basis,)
+    r_c: float  # Angstrom
+    k_nodes: NDArray[np.float64]  # (n_basis,), Angstrom^-1
 
     @property
     def n_basis(self) -> int:
@@ -145,7 +148,7 @@ def precompute_T_l(
 
     Parameters
     ----------
-    q_abs : (nG,) ``|k+G|`` in Bohr⁻¹
+    q_abs : (nG,) ``|k+G|`` in Angstrom⁻¹
     """
     n_basis = basis.n_basis
     nG = q_abs.shape[0]

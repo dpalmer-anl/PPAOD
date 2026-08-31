@@ -63,7 +63,7 @@ from .outputs import (
 from .disentangle import Disentangler
 
 
-PROJECTION_RESTART_VERSION = 1
+PROJECTION_RESTART_VERSION = 2
 
 
 def projection_restart_path(
@@ -248,7 +248,7 @@ def parse_args() -> argparse.Namespace:
         help="Ignore an existing projection-cache restart and rebuild it",
     )
     p.add_argument("--n-basis", type=int, default=10, help="Bessel basis size per l")
-    p.add_argument("--r-c", type=float, default=5.0, help="Radial cutoff r_c (Bohr)")
+    p.add_argument("--r-c", type=float, default=5.0, help="Radial cutoff r_c (Angstrom)")
     p.add_argument("--ridge", type=float, default=1e-2, help="Ridge for initial AMN fit")
     p.add_argument("--lr", type=float, default=1e-2)
     p.add_argument("--max-steps", type=int, default=150)
@@ -391,7 +391,7 @@ def main() -> int:
             k_indices=k_owners,
         )
         print0(
-            f"  alat={alat:.6f} Bohr  loaded local WFCs in {time.time()-t0:.1f}s "
+            f"  alat={alat:.6f} Angstrom  loaded local WFCs in {time.time()-t0:.1f}s "
             f"(rank0 nG={G_list[0].shape[0] if G_list else 0})",
             info=dist_info,
         )
@@ -418,7 +418,7 @@ def main() -> int:
         del c_list, G_list, k_cart_list
         gc.collect()
         print0(
-            f"  done in {time.time()-t0:.1f}s  Ω_cell={cache.omega:.4f} Bohr³",
+            f"  done in {time.time()-t0:.1f}s  Ω_cell={cache.omega:.4f} Angstrom³",
             info=dist_info,
         )
         save_projection_restart(restart_path, cache, cache_signature)
@@ -637,6 +637,8 @@ def main() -> int:
         "J": J,
         "n_basis": args.n_basis,
         "r_c": args.r_c,
+        "r_c_units": "Angstrom",
+        "units": {"energy": "eV", "length": "Angstrom"},
         "alpha": args.alpha,
         "dos_sigma": args.dos_sigma,
         "omega_P": omega_final,

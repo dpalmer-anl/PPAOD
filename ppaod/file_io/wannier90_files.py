@@ -21,15 +21,12 @@ from ..wannier_io import (
     read_mp_grid_win,
 )
 
-ANG_TO_BOHR = 1.0 / 0.52917720859
-
-
 @dataclass
 class TrialOrbital:
     """One Wannier90-style trial orbital (angular part + site; radial free)."""
 
     tau_crystal: NDArray[np.float64]  # (3,) crystal coords
-    tau_cart_bohr: NDArray[np.float64]  # (3,) Cartesian Bohr
+    tau_cart_ang: NDArray[np.float64]  # (3,) Cartesian Angstrom
     l: int
     mr: int  # Wannier90 mr index within l
     zona: float = 1.0
@@ -115,15 +112,14 @@ def read_nnkp_projections(
     Each projection is two lines::
         x y z   l  mr  r
         z-axis(3)  x-axis(3)  zona
-    Positions are crystal coords; converted to Cartesian Bohr using the
-    real lattice (Angstrom → Bohr).
+    Positions are crystal coords; converted to Cartesian Angstrom using the
+    real lattice.
     """
     lines = Path(path).read_text(encoding="utf-8", errors="replace").splitlines()
     block = _parse_nnkp_block(lines, "projections")
     nproj = int(block[0].split()[0])
     orbitals: list[TrialOrbital] = []
     row = 1
-    A_bohr = real_lattice_ang * ANG_TO_BOHR
     for _ in range(nproj):
         parts = block[row].split()
         row += 1
@@ -133,11 +129,11 @@ def read_nnkp_projections(
         extras = block[row].split()
         row += 1
         zona = float(extras[6]) if len(extras) >= 7 else 1.0
-        tau_cart = tau_crys @ A_bohr
+        tau_cart = tau_crys @ real_lattice_ang
         orbitals.append(
             TrialOrbital(
                 tau_crystal=tau_crys,
-                tau_cart_bohr=tau_cart,
+                tau_cart_ang=tau_cart,
                 l=l,
                 mr=mr,
                 zona=zona,

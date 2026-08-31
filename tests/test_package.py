@@ -8,6 +8,10 @@ from ppaod.wannier_io import (
     inverse_fourier_transform,
     mp_R_vectors,
 )
+from ppaod.file_io.qe_wavefunctions import (
+    miller_to_G_cart,
+    xk_to_k_cart,
+)
 
 
 def test_qe_band_parser(tmp_path):
@@ -45,4 +49,18 @@ def test_fourier_round_trip():
         inverse_fourier_transform(h_r, kpts, r_frac),
         h_k,
         atol=1e-12,
+    )
+
+
+def test_qe_reciprocal_vectors_are_converted_to_angstrom_inverse():
+    b_matrix_tpiba = np.diag([2.0, 3.0, 4.0])
+    alat_angstrom = 2.0
+    mill = np.asarray([[1, 0, 0]], dtype=np.int32)
+    np.testing.assert_allclose(
+        miller_to_G_cart(mill, b_matrix_tpiba, alat_angstrom),
+        [[2.0 * np.pi / alat_angstrom, 0.0, 0.0]],
+    )
+    np.testing.assert_allclose(
+        xk_to_k_cart(np.asarray([1.0, 2.0, 3.0]), alat_angstrom),
+        np.asarray([1.0, 2.0, 3.0]) * (2.0 * np.pi / alat_angstrom),
     )
