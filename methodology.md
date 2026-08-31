@@ -160,9 +160,7 @@ After diagonalizing the projected Hamiltonian,
 
 $$
  H_{\mathrm{sub}}(k) C(k)
- = C(k)\left(
- \epsilon^{\mathrm{sub}}_{1k},\dots,\epsilon^{\mathrm{sub}}_{Jk}
- \right),
+ = \epsilon^{\mathrm{sub}}_{k} C(k)
  \qquad C(k)\in\mathbb C^{J\times J} \text{ unitary},
 $$
 
