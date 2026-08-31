@@ -157,6 +157,7 @@ $\sum_m |V_{mi}(k)|^2=1$, so $\rho^{\mathrm{DFT}}_{ik}(E)$ automatically
 integrates to 1 over $E$.
 
 After diagonalizing the projected Hamiltonian,
+
 $$
  H_{\mathrm{sub}}(k) C(k)
  = C(k)\left(
@@ -164,6 +165,7 @@ $$
  \right),
  \qquad C(k)\in\mathbb C^{J\times J} \text{ unitary},
 $$
+
 the subspace LPDOS is
 
 $$
